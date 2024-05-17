@@ -5,6 +5,12 @@
         "publicIpId": {
             "type": "string"
         },
+	"SQpublicIpId": {
+            "type": "string"
+        },
+        "NCpublicIpId": {
+            "type": "string"
+        },   
         "loadBalancerName": {
             "type": "string"
         },
