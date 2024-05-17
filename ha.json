@@ -588,6 +588,9 @@
                     "NCpublicIpId": {
                         "value": "[reference('SettingUpNCPublicIP').outputs.NCpublicIpId.value]"
                     },
+		    "interfaceName": {
+                        "value": "[reference('SettingUpInterfaceWan').outputs.interfaceName.value]"
+                    },	
                     "loadBalancerName": {
                         "value": "Sophos-Public-LB"
                     },
