@@ -514,7 +514,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('NCpublicIpNewOrExisting')]",
+                    "uri": "[variables('NCpublicIpTemplate')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
