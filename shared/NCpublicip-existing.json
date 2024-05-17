@@ -1,0 +1,31 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "NCpublicIPAddressName": {
+            "type": "string"
+        },
+        "dnsPrefix": {
+            "type": "string"
+        },
+        "NCpublicIpRGName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "NCpublicIpId": "[resourceId(parameters('NCpublicIpRGName'),concat('Microsoft.Network','/','publicIPAddresses'),parameters('NCpublicIPAddressName'))]"
+    },
+    "resources": [
+
+    ],
+    "outputs": {
+        "NCpublicIpId": {
+            "value": "[variables('NCpublicIpId')]",
+            "type": "string"
+        },
+        "fqdn": {
+            "value": "[reference(variables('NCpublicIpId'),'2016-06-01').dnsSettings.fqdn]",
+            "type": "string"
+        }
+    }
+}

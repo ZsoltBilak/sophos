@@ -1,0 +1,31 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "SQpublicIPAddressName": {
+            "type": "string"
+        },
+        "dnsPrefix": {
+            "type": "string"
+        },
+        "SQpublicIpRGName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "SQpublicIpId": "[resourceId(parameters('SQpublicIpRGName'),concat('Microsoft.Network','/','publicIPAddresses'),parameters('SQpublicIPAddressName'))]"
+    },
+    "resources": [
+
+    ],
+    "outputs": {
+        "SQpublicIpId": {
+            "value": "[variables('SQpublicIpId')]",
+            "type": "string"
+        },
+        "fqdn": {
+            "value": "[reference(variables('SQpublicIpId'),'2016-06-01').dnsSettings.fqdn]",
+            "type": "string"
+        }
+    }
+}

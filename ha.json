@@ -1,0 +1,798 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "baseUrl": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/sophos-iaas/xg-azure-aa/master/",
+            "metadata": {
+                "artifactsBaseUrl": "Base URL of the template package"
+            }
+        },
+        "vmName": {
+            "type": "string",
+            "defaultValue": "SDCSOPHOS",
+            "metadata": {
+                "description": "Name for the Virtual Machine."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for the Virtual Machine."
+            }
+        },
+        "lanStaticIPs": {
+            "type": "array",
+            "defaultValue": [
+                "10.0.0.4",
+                "10.0.0.5"
+            ],
+            "metadata": {
+                "description": "Array of static IP addresses for LAN interfaces."
+            }
+        },
+        "wanStaticIPs": {
+            "type": "array",
+            "defaultValue": [
+                "172.25.0.4",
+                "172.25.0.5"
+            ],
+            "metadata": {
+                "description": "Array of static IP addresses for WAN interfaces."
+            }
+        },
+        "wanSQIPs": {
+            "type": "array",
+            "defaultValue": [
+                "172.25.0.6",
+                "172.25.0.7"
+            ],
+            "metadata": {
+                "description": "Array of static IP addresses for SonarQube on the WAN interfaces."
+            }
+        },
+        "wanNCIPs": {
+            "type": "array",
+            "defaultValue": [
+                "172.25.0.8",
+                "172.25.0.9"
+            ],
+            "metadata": {
+                "description": "Array of static IP addresses for NextCloud on the WAN interfaces."
+            }
+        },
+        "imageSku": {
+            "type": "string",
+            "defaultValue": "byol",
+            "allowedValues": [
+                "byol",
+                "payg-new"
+            ],
+            "metadata": {
+                "description": "License type to use."
+            }
+        },
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_F2s_v2",
+            "metadata": {
+                "description": "Size of the Virtual Machine."
+            }
+        },
+        "netNewOrExisting": {
+            "type": "string",
+            "defaultValue": "existing",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Create new Virtual Network or use an existing one."
+            }
+        },
+        "netRG": {
+            "type": "string",
+            "defaultValue": "Network-RG",
+            "metadata": {
+                "description": "The resource group of the new network. If using an existing network, this parameter is optional"
+            }
+        },
+        "netName": {
+            "type": "string",
+            "defaultValue": "00-Firewall-vnet",
+            "metadata": {
+                "description": "Name of the Virtual Network."
+            }
+        },
+        "netPrefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0",
+            "metadata": {
+                "description": "Please provide the subnet value for the Virtual Network when creating a new vNet. Will be appended with /16."
+            }
+        },
+        "wanName": {
+            "type": "string",
+            "defaultValue": "WAN-subnet",
+            "metadata": {
+                "description": "Name of the WAN side Subnet."
+            }
+        },
+        "wanPrefix": {
+            "type": "string",
+            "defaultValue": "172.25.0.0",
+            "metadata": {
+                "description": "Please provide the subnet value for the WAN subnet when creating a new vNet. Will be appended with /24."
+            }
+        },
+        "lanName": {
+            "type": "string",
+            "defaultValue": "LAN-subnet",
+            "metadata": {
+                "description": "Name of the LAN side Subnet."
+            }
+        },
+        "lanPrefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0",
+            "metadata": {
+                "description": "Please provide the subnet value for the LAN subnet when creating a new vNet. Will be appended with /24."
+            }
+        },
+        "LoadbalancerIntIP": {
+            "type": "string",
+            "defaultValue": "10.0.0.250",
+            "metadata": {
+                "description": "IP address for the internal Load Balancer."
+            }
+        },
+        "publicIpNewOrExisting": {
+            "type": "string",
+            "defaultValue": "existing",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Create new Public IP or use an existing one."
+            }
+        },
+        "publicIpRG": {
+            "type": "string",
+            "defaultValue": "SOPHOS-RG",
+            "metadata": {
+                "description": "Resource Group of existing Public IP (optional)."
+            }
+        },
+        "publicIpName": {
+            "type": "string",
+            "defaultValue": "SDCSOPHOS-pip",
+            "metadata": {
+                "description": "Name of the Public IP."
+            }
+        },
+        "SQpublicIpNewOrExisting": {
+            "type": "string",
+            "defaultValue": "existing",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Create new Public IP or use an existing one."
+            }
+        },
+        "SQpublicIpRG": {
+            "type": "string",
+            "defaultValue": "SQ-RG",
+            "metadata": {
+                "description": "Resource Group of existing Public IP (optional)."
+            }
+        },
+        "SQpublicIpName": {
+            "type": "string",
+            "defaultValue": "SQ-pip",
+            "metadata": {
+                "description": "Name of the Public IP."
+            }
+        },
+        "NCpublicIpNewOrExisting": {
+            "type": "string",
+            "defaultValue": "existing",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Create new Public IP or use an existing one."
+            }
+        },
+        "NCpublicIpRG": {
+            "type": "string",
+            "defaultValue": "NC-RG",
+            "metadata": {
+                "description": "Resource Group of existing Public IP (optional)."
+            }
+        },
+        "NCpublicIpName": {
+            "type": "string",
+            "defaultValue": "NC-pip",
+            "metadata": {
+                "description": "Name of the Public IP."
+            }
+        },
+        "publicIpDNS": {
+            "type": "string",
+            "defaultValue": "sdcsophos",
+            "metadata": {
+                "description": "Unique DNS name prefix for Public IP."
+            }
+        },
+        "storageNewOrExisting": {
+            "type": "string",
+            "defaultValue": "existing",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Create new Storage Account or use an existing one."
+            }
+        },
+        "storageRG": {
+            "type": "string",
+            "defaultValue": "SOPHOS-RG",
+            "metadata": {
+                "description": "Resource Group of existing Storage Account (optional)."
+            }
+        },
+        "storageName": {
+            "type": "string",
+            "defaultValue": "sdcsophos",
+            "metadata": {
+                "description": "Unique name for Storage Account."
+            }
+        },
+        "storageType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Replication mode for Storage Account."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "UK South",
+            "metadata": {
+                "description": "Geo-Location you want to deploy to."
+            }
+        },
+        "nicWan": {
+            "type": "string",
+            "defaultValue": "PortB-WAN-FW",
+            "metadata": {
+                "description": "Network Interface Name for WAN Zone"
+            }
+        },
+        "nicLan": {
+            "type": "string",
+            "defaultValue": "PortA-LAN-FW",
+            "metadata": {
+                "description": "Network Interface Name for LAN Zone"
+            }
+        },
+        "networkSecurityGroupNewOrExisting": {
+            "type": "string",
+            "defaultValue": "new",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Create new Network Security Group or use an existing one."
+            }
+        },
+        "networkSecurityGroupName": {
+            "type": "string",
+            "defaultValue": "SOPHOS-NSG",
+            "metadata": {
+                "description": "Name of the Network Security Group"
+            }
+        },
+        "trustedNetwork": {
+            "type": "string",
+            "defaultValue": "*",
+            "metadata": {
+                "description": "Trusted network for admin access. Using * will allow traffic from everywhere; using a CIDR notation, e.g., 203.0.113.0/24, will only allow traffic from that network range."
+            }
+        },
+        "availabilitySetNewOrExisting": {
+            "type": "string",
+            "defaultValue": "new",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Create new Availability Set or use an existing one."
+            }
+        },
+        "availabilitySetName": {
+            "type": "string",
+            "defaultValue": "SophosAvailabilitySet",
+            "metadata": {
+                "description": "Name of the Availability Set"
+            }
+        },
+        "numberOfInstances": {
+            "type": "int",
+            "defaultValue": 2,
+            "minValue": 1,
+            "maxValue": 5,
+            "metadata": {
+                "description": "Number of XG Firewall instances to be deployed."
+            }
+        },
+        "automationAccountNewOrExisting": {
+            "type": "string",
+            "defaultValue": "new",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Create a new Azure Automation account or select an existing account to use for XG automation. WARNING: Automation account names are unique, so reusing an account name when creating a new account will overwirte the existing account!."
+            }
+        },
+        "automationAccountName": {
+            "type": "string",
+            "defaultValue": "Sophos-automation-account",
+            "metadata": {
+                "description": "Enter the name of the Azure Automation account you wish to use / create. Note that when creating a new account the account name must be between 6 to 50 characters, and can contain only letters, numbers, and hyphens."
+            }
+        }
+    },
+    "variables": {
+        "publicIpTemplate": "[concat(parameters('baseUrl'),'/shared/publicip-',parameters('publicIpNewOrExisting'),'.json')]",
+        "SQpublicIpTemplate": "[concat(parameters('baseUrl'),'/shared/SQpublicip-',parameters('SQpublicIpNewOrExisting'),'.json')]",
+        "NCpublicIpTemplate": "[concat(parameters('baseUrl'),'/shared/NCpublicip-',parameters('NCpublicIpNewOrExisting'),'.json')]",
+        "netTemplate": "[concat(parameters('baseUrl'),'/shared/vnet-',parameters('netNewOrExisting'),'.json')]",
+        "storageTemplate": "[concat(parameters('baseUrl'),'/shared/storageAccount-',parameters('storageNewOrExisting'),'.json')]",
+        "availabilitySetTemplate": "[concat(parameters('baseUrl'),'/shared/availabilitySet-',parameters('availabilitySetNewOrExisting'),'.json')]",
+        "networkSecurityGroupTemplate": "[concat(parameters('baseUrl'),'/shared/networkSecurityGroup-',parameters('networkSecurityGroupNewOrExisting'),'.json')]",
+        "interfaceWanTemplate": "[concat(parameters('baseUrl'),'/shared/interface-wan.json')]",
+        "interfaceLanTemplate": "[concat(parameters('baseUrl'),'/shared/interface-lan.json')]",
+        "interfaceLBTemplate": "[concat(parameters('baseUrl'),'/shared/interface-lb.json')]",
+        "interfaceLBIntTemplate": "[concat(parameters('baseUrl'),'/shared/interface-lbint.json')]",
+        "vmTemplate": "[concat(parameters('baseUrl'),'/shared/vm.json')]",
+        "LBTemplate": "[concat(parameters('baseUrl'),'/shared/loadbalancer.json')]",
+        "LBIntTemplate": "[concat(parameters('baseUrl'),'/shared/loadbalancerint.json')]",
+        "securityRuleAllowHTTPTemplate": "[concat(parameters('baseUrl'),'/shared/inboundSecurityRuleAllowHttp.json')]",
+        "apiVersion": {
+            "resources": {
+                "deployments": "2017-08-01"
+            }
+        },
+        "accountTemplate": "[concat(parameters('baseUrl'),'/shared/AAAccountTemplate-', parameters('automationAccountNewOrExisting'),'.json')]",
+		"lanNetwork": "[substring(parameters('lanPrefix'),0,sub(length(parameters('lanPrefix')), 1))]"
+    },
+    "resources": [
+        {
+            "name": "SettingUpAvailabilitySet",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('availabilitySetTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "availabilitySetName": {
+                        "value": "[parameters('availabilitySetName')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "SettingUpStorageAccount",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('storageTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "storageAccountName": {
+                        "value": "[parameters('storageName')]"
+                    },
+                    "storageAccountType": {
+                        "value": "[parameters('storageType')]"
+                    },
+                    "storageAccountExistingRG": {
+                        "value": "[parameters('storageRG')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "SettingUpNetworkSecurityGroup",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('networkSecurityGroupTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "networkSecurityGroupName": {
+                        "value": "[parameters('networkSecurityGroupName')]"
+                    },
+                    "trustedNetwork": {
+                        "value": "[parameters('trustedNetwork')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "SettingUpSecurityRuleAllowHTTP",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpNetworkSecurityGroup')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('securityRuleAllowHTTPTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "networkSecurityGroupName": {
+                        "value": "[parameters('networkSecurityGroupName')]"
+                    },
+                    "trustedNetwork": {
+                        "value": "*"
+                    }
+                }
+            }
+        },
+        {
+            "name": "SettingUpPublicIP",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('publicIpTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "publicIPAddressName": {
+                        "value": "[parameters('publicIpName')]"
+                    },
+                    "dnsPrefix": {
+                        "value": "[parameters('publicIpDNS')]"
+                    },
+                    "publicIpRGName": {
+                        "value": "[parameters('publicIpRG')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "SettingUpSQPublicIP",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('SQpublicIpTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "SQpublicIPAddressName": {
+                        "value": "[parameters('SQpublicIpName')]"
+                    },
+                    "dnsPrefix": {
+                        "value": "[parameters('publicIpDNS')]"
+                    },
+                    "SQpublicIpRGName": {
+                        "value": "[parameters('SQpublicIpRG')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "SettingUpNCPublicIP",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('NCpublicIpNewOrExisting')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "NCpublicIPAddressName": {
+                        "value": "[parameters('NCpublicIpName')]"
+                    },
+                    "dnsPrefix": {
+                        "value": "[parameters('publicIpDNS')]"
+                    },
+                    "NCpublicIpRGName": {
+                        "value": "[parameters('NCpublicIpRG')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "SettingUpVirtualNetwork",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('netTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "[parameters('netName')]"
+                    },
+                    "virtualNetworkAddressPrefix": {
+                        "value": "[concat(parameters('netPrefix'),'/16')]"
+                    },
+                    "Subnet1Name": {
+                        "value": "[parameters('wanName')]"
+                    },
+                    "Subnet1Prefix": {
+                        "value": "[concat(parameters('wanPrefix'),'/24')]"
+                    },
+                    "Subnet2Name": {
+                        "value": "[parameters('lanName')]"
+                    },
+                    "Subnet2Prefix": {
+                        "value": "[concat(parameters('lanPrefix'),'/24')]"
+                    },
+                    "vnetExistingRGName": {
+                        "value": "[parameters('netRG')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "SettingUpLoadbalancer",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpPublicIP')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('LBTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "publicIpId": {
+                        "value": "[reference('SettingUpPublicIP').outputs.publicIpId.value]"
+                    },
+                    "SQpublicIpId": {
+                        "value": "[reference('SettingUpSQPublicIP').outputs.SQpublicIpId.value]"
+                    },
+                    "NCpublicIpId": {
+                        "value": "[reference('SettingUpNCPublicIP').outputs.NCpublicIpId.value]"
+                    },
+                    "loadBalancerName": {
+                        "value": "Sophos-Public-LB"
+                    },
+                    "numberOfInstances": {
+                        "value": "[parameters('numberOfInstances')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat('SettingUpInterfaceWan', copyIndex(1))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "copy": {
+                "name": "InterfaceWanLoop",
+                "count": "[parameters('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpLoadbalancer')]",
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpVirtualNetwork')]",
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpNetworkSecurityGroup')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('interfaceLBTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "interfaceName": {
+                        "value": "[concat(parameters('nicWan'),'0',copyIndex(1))]"
+                    },
+                    "subnetRef": {
+                        "value": "[reference('SettingUpVirtualNetwork','2015-01-01').outputs.subnet1Ref.value]"
+                    },
+                    "lbBackendID": {
+                        "value": "[reference('SettingUpLoadbalancer').outputs.lbBackendID.value]"
+                    },
+                    "inboundNatID": {
+                        "value": "[concat(reference('SettingUpLoadbalancer').outputs.inboundNatIDPrefix.value, copyIndex(1))]"
+                    },
+                    "inboundNatSshID": {
+                        "value": "[concat(reference('SettingUpLoadbalancer').outputs.inboundNatSshIDPrefix.value, copyIndex(1))]"
+                    },
+                    "networkSecurityGroupId": {
+                        "value": "[reference('SettingUpNetworkSecurityGroup','2015-01-01').outputs.networkSecurityGroupName.value]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "SettingUpIntLoadbalancer",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('LBIntTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "subnetRef": {
+                        "value": "[reference('SettingUpVirtualNetwork','2015-01-01').outputs.subnet2Ref.value]"
+                    },
+                    "privateIP": {
+                        "value": "[parameters('LoadbalancerIntIP')]"
+                    },
+                    "loadBalancerName": {
+                        "value": "Sophos-Internal-LB"
+                    },
+                    "numberOfInstances": {
+                        "value": "[parameters('numberOfInstances')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat('SettingUpInterfaceLan', copyIndex(1))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "copy": {
+                "name": "InterfaceLanLoop",
+                "count": "[parameters('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpVirtualNetwork')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('interfaceLBIntTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "interfaceName": {
+                        "value": "[concat(parameters('nicLan'),'0',copyIndex(1))]"
+                    },
+                    "subnetRef": {
+                        "value": "[reference('SettingUpVirtualNetwork','2015-01-01').outputs.subnet2Ref.value]"
+                    },
+                    "lbBackendID": {
+                        "value": "[reference('SettingUpIntLoadbalancer').outputs.lbBackendID.value]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat('SettingUpVm', copyIndex(1))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('apiVersion').resources.deployments]",
+            "copy": {
+                "name": "VmLoop",
+                "count": "[parameters('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[if(equals(copyIndex(), 0), concat('Microsoft.Resources/deployments/', 'SettingUpPublicIP'), concat('Microsoft.Resources/deployments/','SettingUpVm',sub(copyIndex(1), 1) ))]",
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpInterfaceWan', copyIndex(1))]",
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpInterfaceLan', copyIndex(1))]",
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpStorageAccount')]",
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpAvailabilitySet')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vmTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmName": {
+                        "value": "[concat(parameters('vmName'),'0',copyIndex(1))]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "imageSku": {
+                        "value": "[parameters('imageSku')]"
+                    },
+                    "availabilitySetId": {
+                        "value": "[reference('SettingUpAvailabilitySet').outputs.availabilitySetId.value]"
+                    },
+                    "storageAccountEndpoint": {
+                        "value": "[reference('SettingUpStorageAccount').outputs.storageAccountEndpoint.value]"
+                    },
+                    "interfaceRefWan": {
+                        "value": "[reference(concat('SettingUpInterfaceWan', copyIndex(1)),'2015-01-01').outputs.interfaceRef.value]"
+                    },
+                    "interfaceRefLan": {
+                        "value": "[reference(concat('SettingUpInterfaceLan', copyIndex(1)),'2015-01-01').outputs.interfaceRef.value]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "SettingUpAutomationAccount",
+            "apiVersion": "2015-01-01",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('accountTemplate')]",
+                    "contentVersion": "1.0"
+                },
+                "parameters": {
+                    "accountName": {
+                        "value": "[parameters('automationAccountName')]"
+                    },
+                    "accountLocation": {
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat(parameters('automationAccountName'),'/RunbookJob',copyIndex(1))]",
+            "type": "Microsoft.Automation/automationAccounts/jobs",
+            "apiVersion": "2017-05-15-preview",
+            "copy": {
+                "name": "JobLoop",
+                "count": "[parameters('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpAutomationAccount')]",
+                "[concat('Microsoft.Resources/deployments/', 'SettingUpVm', copyIndex(1))]"
+            ],
+            "properties": {
+                "runbook": {
+                    "name": "[reference('SettingUpAutomationAccount').outputs.runbookRef.value]"
+                },
+                "parameters": {
+                    "password": "[parameters('adminPassword')]",
+                    "portaip": "[reference(concat('SettingUpInterfaceLan', copyIndex(1)),'2015-01-01').outputs.privateIp.value]",
+                    "portagw": "[concat(variables('lanNetwork'),'1')]",
+                    "hostname": "[reference('SettingUpPublicIP').outputs.fqdn.value]",
+                    "sshport": "[copyIndex(2222)]"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "fqdn": {
+            "value": "[reference('SettingUpPublicIP').outputs.fqdn.value]",
+            "type": "string"
+        }
+    }
+}

@@ -1,0 +1,88 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "interfaceName": {
+            "type": "string"
+        },
+        "subnetRef": {
+            "type": "string"
+        },
+        "publicIpId": {
+            "type": "string"
+        },
+        "networkSecurityGroupId": {
+            "type": "string"
+        },
+        "wanStaticIP": {
+            "type": "string"
+        },
+        "wanSQIPs": {
+            "type": "string"
+        },
+        "wanNCIPs": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2016-03-30",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('interfaceName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "networkSecurityGroup": {
+                    "id": "[parameters('networkSecurityGroupId')]"
+                },
+                "ipConfigurations": [
+                    {
+                        "name": "WANIP",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('wanStaticIP')]",
+                            "publicIPAddress": {
+                                "id": "[parameters('publicIpId')]"
+                            },
+                            "subnet": {
+                                "id": "[parameters('subnetRef')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "SonarQubeIP",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('wanSQIPs')]",
+                            "publicIPAddress": {
+                                "id": "[parameters('publicIpId')]"
+                            },
+                            "subnet": {
+                                "id": "[parameters('subnetRef')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "NextCloudIP",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('wanNCIPs')]",
+                            "publicIPAddress": {
+                                "id": "[parameters('publicIpId')]"
+                            },
+                            "subnet": {
+                                "id": "[parameters('subnetRef')]"
+                            }
+                        }
+                    }
+                ],
+                "enableIPForwarding": true
+            }
+        }
+    ],
+    "outputs": {
+        "interfaceRef": {
+            "value": "[resourceId('Microsoft.Network/networkInterfaces',parameters('interfaceName'))]",
+            "type": "string"
+        }
+    }
+}
