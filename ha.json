@@ -4,7 +4,7 @@
     "parameters": {
         "baseUrl": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/ZsoltBilak/sophos/master/",
+            "defaultValue": "https://raw.githubusercontent.com/sophos-iaas/xg-azure-aa/master/",
             "metadata": {
                 "artifactsBaseUrl": "Base URL of the template package"
             }
@@ -20,26 +20,6 @@
             "type": "securestring",
             "metadata": {
                 "description": "Password for the Virtual Machine."
-            }
-        },
-	"lanStaticIPs": {
-            "type": "array",
-            "defaultValue": [
-                "10.0.3.4",
-                "10.0.3.5"
-            ],
-            "metadata": {
-                "description": "Array of static IP addresses for LAN interfaces."
-            }
-        },
-        "wanStaticIPs": {
-            "type": "array",
-            "defaultValue": [
-                "172.25.3.4",
-                "172.25.3.5"
-            ],
-            "metadata": {
-                "description": "Array of static IP addresses for WAN interfaces."
             }
         },
         "imageSku": {
