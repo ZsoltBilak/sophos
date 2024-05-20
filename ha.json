@@ -22,6 +22,46 @@
                 "description": "Password for the Virtual Machine."
             }
         },
+	"lanStaticIPs": {
+            "type": "array",
+            "defaultValue": [
+                "10.0.0.4",
+                "10.0.0.5"
+            ],
+            "metadata": {
+                "description": "Array of static IP addresses for LAN interfaces."
+            }
+        },
+        "wanStaticIPs": {
+            "type": "array",
+            "defaultValue": [
+                "172.25.0.4",
+                "172.25.0.5"
+            ],
+            "metadata": {
+                "description": "Array of static IP addresses for WAN interfaces."
+            }
+        },
+        "wanSQIPs": {
+            "type": "array",
+            "defaultValue": [
+                "172.25.0.6",
+                "172.25.0.7"
+            ],
+            "metadata": {
+                "description": "Array of static IP addresses for SonarQube on the WAN interfaces."
+            }
+        },
+        "wanNCIPs": {
+            "type": "array",
+            "defaultValue": [
+                "172.25.0.8",
+                "172.25.0.9"
+            ],
+            "metadata": {
+                "description": "Array of static IP addresses for NextCloud on the WAN interfaces."
+            }
+        },
         "imageSku": {
             "type": "string",
             "defaultValue": "byol",
