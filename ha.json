@@ -11,7 +11,7 @@
         },
         "vmName": {
             "type": "string",
-            "defaultValue": "SDCSOPHOS",
+            "defaultValue": "TESTSOPHOS",
             "metadata": {
                 "description": "Name for the Virtual Machine."
             }
@@ -25,8 +25,8 @@
 	"lanStaticIPs": {
             "type": "array",
             "defaultValue": [
-                "10.0.0.4",
-                "10.0.0.5"
+                "10.0.3.4",
+                "10.0.3.5"
             ],
             "metadata": {
                 "description": "Array of static IP addresses for LAN interfaces."
@@ -35,31 +35,11 @@
         "wanStaticIPs": {
             "type": "array",
             "defaultValue": [
-                "172.25.0.4",
-                "172.25.0.5"
+                "172.25.3.4",
+                "172.25.3.5"
             ],
             "metadata": {
                 "description": "Array of static IP addresses for WAN interfaces."
-            }
-        },
-        "wanSQIPs": {
-            "type": "array",
-            "defaultValue": [
-                "172.25.0.6",
-                "172.25.0.7"
-            ],
-            "metadata": {
-                "description": "Array of static IP addresses for SonarQube on the WAN interfaces."
-            }
-        },
-        "wanNCIPs": {
-            "type": "array",
-            "defaultValue": [
-                "172.25.0.8",
-                "172.25.0.9"
-            ],
-            "metadata": {
-                "description": "Array of static IP addresses for NextCloud on the WAN interfaces."
             }
         },
         "imageSku": {
@@ -114,35 +94,35 @@
         },
         "wanName": {
             "type": "string",
-            "defaultValue": "WAN-subnet",
+            "defaultValue": "Test_FW_WAN-subnet",
             "metadata": {
                 "description": "Name of the WAN side Subnet."
             }
         },
         "wanPrefix": {
             "type": "string",
-            "defaultValue": "172.25.0.0",
+            "defaultValue": "172.25.3.0",
             "metadata": {
                 "description": "Please provide the subnet value for the WAN subnet when creating a new vNet. Will be appended with /24."
             }
         },
         "lanName": {
             "type": "string",
-            "defaultValue": "LAN-subnet",
+            "defaultValue": "Test_FW_LAN-subnet",
             "metadata": {
                 "description": "Name of the LAN side Subnet."
             }
         },
         "lanPrefix": {
             "type": "string",
-            "defaultValue": "10.0.0.0",
+            "defaultValue": "10.0.3.0",
             "metadata": {
                 "description": "Please provide the subnet value for the LAN subnet when creating a new vNet. Will be appended with /24."
             }
         },
         "LoadbalancerIntIP": {
             "type": "string",
-            "defaultValue": "10.0.0.250",
+            "defaultValue": "10.0.3.250",
             "metadata": {
                 "description": "IP address for the internal Load Balancer."
             }
@@ -160,21 +140,21 @@
         },
         "publicIpRG": {
             "type": "string",
-            "defaultValue": "SOPHOS-RG",
+            "defaultValue": "TestFW-RG",
             "metadata": {
                 "description": "Resource Group of existing Public IP (optional)."
             }
         },
         "publicIpName": {
             "type": "string",
-            "defaultValue": "SDCSOPHOS-pip",
+            "defaultValue": "TestFW1_PublicIP",
             "metadata": {
                 "description": "Name of the Public IP."
             }
         },
         "publicIpDNS": {
             "type": "string",
-            "defaultValue": "sdcsophos",
+            "defaultValue": "testsdcsophos",
             "metadata": {
                 "description": "Unique DNS name prefix for Public IP."
             }
@@ -192,14 +172,14 @@
         },
         "storageRG": {
             "type": "string",
-            "defaultValue": "SOPHOS-RG",
+            "defaultValue": "TestFW-RG",
             "metadata": {
                 "description": "Resource Group of existing Storage Account (optional)."
             }
         },
         "storageName": {
             "type": "string",
-            "defaultValue": "sdcsophos",
+            "defaultValue": "testsdcsophos",
             "metadata": {
                 "description": "Unique name for Storage Account."
             }
@@ -245,7 +225,7 @@
         },
         "networkSecurityGroupName": {
             "type": "string",
-            "defaultValue": "SOPHOS-NSG",
+            "defaultValue": "TESTSOPHOS-NSG",
             "metadata": {
                 "description": "Name of the Network Security Group"
             }
@@ -270,7 +250,7 @@
         },
         "availabilitySetName": {
             "type": "string",
-            "defaultValue": "SophosAvailabilitySet",
+            "defaultValue": "TESTSophosAvailabilitySet",
             "metadata": {
                 "description": "Name of the Availability Set"
             }
@@ -297,7 +277,7 @@
         },
         "automationAccountName": {
             "type": "string",
-            "defaultValue": "Sophos-automation-account",
+            "defaultValue": "TESTSophos-automation-account",
             "metadata": {
                 "description": "Enter the name of the Azure Automation account you wish to use / create. Note that when creating a new account the account name must be between 6 to 50 characters, and can contain only letters, numbers, and hyphens."
             }
