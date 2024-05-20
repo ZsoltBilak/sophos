@@ -13,6 +13,15 @@
         },
         "networkSecurityGroupId": {
             "type": "string"
+        },
+        "wanStaticIP": {
+            "type": "string"
+        },
+        "wanSQIPs": {
+            "type": "string"
+        },
+        "wanNCIPs": {
+            "type": "string"
         }
     },
     "resources": [
@@ -27,9 +36,36 @@
                 },
                 "ipConfigurations": [
                     {
-                        "name": "ipconfig",
+                        "name": "WANIP",
                         "properties": {
                             "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('wanStaticIP')]",
+                            "publicIPAddress": {
+                                "id": "[parameters('publicIpId')]"
+                            },
+                            "subnet": {
+                                "id": "[parameters('subnetRef')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "SonarQubeIP",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('wanSQIPs')]",
+                            "publicIPAddress": {
+                                "id": "[parameters('publicIpId')]"
+                            },
+                            "subnet": {
+                                "id": "[parameters('subnetRef')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "NextCloudIP",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[parameters('wanNCIPs')]",
                             "publicIPAddress": {
                                 "id": "[parameters('publicIpId')]"
                             },
