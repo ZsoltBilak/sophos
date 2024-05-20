@@ -1,0 +1,153 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subnetRef": {
+            "type": "string"
+        },
+		"privateIP": {
+            "type": "string"
+        },
+		"loadBalancerName": {
+            "type": "string"
+        },
+        "numberOfInstances": {
+            "type": "int"
+        }
+    },
+    "variables": {
+        "lbFrontendName": "LBFrontEnd",
+        "lbBackendName": "LBBackEnd",
+        "inboundNatName": "Webadmin-FW",
+        "inboundNatSshName": "SSH-FW",
+        "probeName": "Probe-Proxy-On-3128",
+        "lbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('loadBalancerName'))]",
+        "lbFrontendID": "[concat(variables('lbID'),'/frontendIPConfigurations/',variables('lbFrontendName'))]",
+        "lbBackendID": "[concat(variables('lbID'),'/backendAddressPools/',variables('lbBackendName'))]",
+        "lbProbeID": "[concat(variables('lbID'),'/probes/',variables('probeName'))]",
+        "inboundNatIDPrefix": "[concat(variables('lbID'),'/inboundNatRules/',variables('inboundNatName'),'-')]",
+        "inboundNatSshIDPrefix": "[concat(variables('lbID'),'/inboundNatRules/',variables('inboundNatSshName'),'-')]"     
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-08-01",
+            "name": "[parameters('loadBalancerName')]",
+            "type": "Microsoft.Network/loadBalancers",
+            "location": "[resourceGroup().location]",
+			"sku":
+            {
+                "name": "Standard"
+            },
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "[variables('lbFrontendName')]",
+                        "properties": {
+                            "subnet": {
+							"id": "[parameters('subnetRef')]"
+							},
+							"privateIPAddress": "[parameters('privateIP')]",
+							"privateIPAllocationMethod": "Static"
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[variables('lbBackendName')]"
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "name": "AnyTCPUDP",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[variables('lbFrontendID')]"
+                            },
+                            "frontendPort": 0,
+                            "backendPort": 0,
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 4,
+                            "protocol": "All",
+                            "loadDistribution": "SourceIP",
+                            "backendAddressPool": {
+                                "id": "[variables('lbBackendID')]"
+                            },
+                            "probe": {
+                                "id": "[variables('lbProbeID')]"
+                            }
+                        }
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "[variables('probeName')]",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "port": 3128,
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2016-03-30",
+            "name": "[concat(parameters('loadBalancerName'), '/', variables('inboundNatName'), '0', copyIndex(1))]",
+            "type": "Microsoft.Network/loadBalancers/inboundNatRules",
+            "location": "[resourceGroup().location]",
+            "copy": {
+                "name": "inboundNatLoop",
+                "count": "[parameters('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'))]"
+            ],
+            "properties": {
+                "frontendIPConfiguration": {
+                    "id": "[variables('lbFrontendID')]"
+                },
+                "protocol": "tcp",
+                "frontendPort": "[copyIndex(4444)]",
+                "backendPort": 4444,
+                "enableFloatingIP": false
+            }
+        },
+        {
+            "apiVersion": "2016-03-30",
+            "name": "[concat(parameters('loadBalancerName'), '/', variables('inboundNatSshName'), '0', copyIndex(1))]",
+            "type": "Microsoft.Network/loadBalancers/inboundNatRules",
+            "location": "[resourceGroup().location]",
+            "copy": {
+                "name": "inboundNatSshLoop",
+                "count": "[parameters('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'))]"
+            ],
+            "properties": {
+                "frontendIPConfiguration": {
+                    "id": "[variables('lbFrontendID')]"
+                },
+                "protocol": "tcp",
+                "frontendPort": "[copyIndex(2222)]",
+                "backendPort": 22,
+                "enableFloatingIP": false
+            }
+        }
+    ],
+    "outputs": {
+        "lbID": {
+            "value": "[variables('lbID')]",
+            "type": "string"
+        },
+        "lbFrontendID": {
+            "value": "[variables('lbFrontendID')]",
+            "type": "string"
+        },
+        "lbBackendID": {
+            "value": "[variables('lbBackendID')]",
+            "type": "string"
+        }
+    }
+}
